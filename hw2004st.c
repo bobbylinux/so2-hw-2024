@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
+#include <gsl-2.7.1/gsl_rng.h>
 
 #define MAX_WORDS 10000
 #define MAX_WORD_SIZE 30
@@ -52,7 +53,7 @@ void read_csv_and_build_list(const char *filename, struct word_element **head);
 
 void print_list(const struct word_element *head);
 
-void write_text_file(const struct word_element *head, int number_of_words, char* start_word, char* output_file_name);
+void write_text_file(const struct word_element *head, int number_of_words, char *start_word, char *output_file_name);
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -69,9 +70,9 @@ int main(int argc, char *argv[]) {
 
                 int j = 1;
                 for (int i = 0; words[i] != NULL; i++) {
-                    if (words[j] == NULL) {
-                        j = 0;
-                    }
+//                    if (words[j] == NULL) {
+//                        j = 0;
+//                    }
                     add_or_update_element(&head, words[i], words[j]);
                     j++;
                 }
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
                     input_file = argv[optind];
                     optind++;
                     char *end_pointer;
-                    number_of_words =  strtol(argv[optind], &end_pointer, 10);
+                    number_of_words = strtol(argv[optind], &end_pointer, 10);
                     if (argv[optind] == NULL || *end_pointer != '\0') {
                         // Gestisci il caso in cui ci sono caratteri non validi nella stringa
                         perror("Error trying to read number of words, characters not valid");
@@ -311,7 +312,7 @@ void write_output(struct word_element **head, char *output_file_name) {
             double decimal_part = occurrences - (int) occurrences;
 
             if (decimal_part != 0.0) {
-                fprintf(fp, "%.*lf", 2,roundDownToDecimal(occurrences, 2));
+                fprintf(fp, "%.*lf", 2, roundDownToDecimal(occurrences, 2));
 
             } else {
                 fprintf(fp, "%d", (int) occurrences);
@@ -395,24 +396,46 @@ void print_list(const struct word_element *head) {
  * @param number_of_words
  * @param start_word
  */
-void write_text_file(const struct word_element *head, int number_of_words, char* start_word, char* output_file_name) {
+void write_text_file(const struct word_element *head, int number_of_words, char *start_word, char *output_file_name) {
     const struct word_element *current = head;
+    struct next_word_element *next_word = NULL;
+    int index = 0;
+    int shifter = 0;
+
     FILE *fp = fopen(output_file_name, "w");
     if (!fp) {
         perror("Error trying to open output file\n");
         exit(EXIT_FAILURE);
     }
 
-    while (current != NULL) {
-        printf("%s, count: %d\n", current->word, current->count);
-
-        const struct next_word_element *next_words = current->next_words;
-        while (next_words != NULL) {
-            printf("    %s, count: %d\n", next_words->word, next_words->count);
-            next_words = next_words->next_element;
+    // se start word è presente cerca la parola da cui partire nella lista concatenata
+    if (start_word == NULL) {
+        strcpy(start_word, current->word);
+    }
+    while (index < number_of_words) {
+        while (current != NULL && strcmp(current->word, start_word) != 0) {
+            current = current->next_element;
         }
-
-        printf("\n");
-        current = current->next_element;
+        if (current != NULL) {
+            //trovato ora controllo se count == 1
+            if (current->count == 1) {
+                printf("%s ", current->next_words->word);
+                strcpy(start_word, current->next_words->word);
+            } else {
+                shifter = rand() % current->count;
+                for (int i = 0; i <= shifter; i++) {
+                    next_word = current->next_words->next_element;
+                }
+                if (next_word != NULL) {
+                    printf("%s ", next_word->word);
+                    strcpy(start_word, next_word->word);
+                }
+            }
+            index++;
+        } else {
+            //non ho trovato l'elemento a fine lista, devo ripartire dalla testa
+            current = head;
+        }
     }
 }
+
