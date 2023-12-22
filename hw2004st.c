@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <gsl/gsl_rng.h>
+#include <time.h>
 
 #define MAX_WORDS 10000
 #define MAX_WORD_SIZE 30
@@ -33,7 +34,6 @@ struct word_element {
     struct next_word_element *next_words;
     struct word_element *next_element;
 };
-
 
 char **read_text_file(char *input_file_name);
 
@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
                 perror("Unknown option, please select a valid option -1 or -2\n");
                 exit(EXIT_FAILURE);
         }
+        exit(EXIT_SUCCESS);
     }
     // se qualcosa è andato storto si esce comunque con errore.
     printf("Unknown option, please select a valid option -1 or -2\n");
@@ -140,7 +141,7 @@ char **read_text_file(char *input_file_name) {
         exit(EXIT_FAILURE);
     }
 
-    // ciclo sul file parola per parola fino ad incontrare il carattere di fine file
+    // ciclo sul file parola per parola fino a incontrare il carattere di fine file
     while ((chr = fgetc(fp)) != EOF) {
         if (idx_letter < MAX_WORD_SIZE - 1 && chr == SPACE || chr == QUESTION_MARK || chr == EXCLAMATION_MARK ||
             chr == DOT || chr == END_LINE || chr == TAB) {
@@ -441,6 +442,8 @@ void write_text_file(const struct word_element *head, int number_of_words, char 
     gsl_rng_env_setup();
     rngType = gsl_rng_default;
     rng = gsl_rng_alloc(rngType);
+    // Imposta il seme basato sull'orologio di sistema
+    gsl_rng_set(rng, time(NULL));
 
     // apre il file di output in scrittura
     FILE *fp = fopen(output_file_name, "w");
@@ -478,10 +481,13 @@ void write_text_file(const struct word_element *head, int number_of_words, char 
                 printf("%s ", current->next_words->word);
                 strcpy(start_word, current->next_words->word);
             } else {
+                next_word = current->next_words;
                 shifter = (int) gsl_rng_uniform_int(rng, current->count);
                 // altrimenti è necessario andare a pescare il successore che si trova all'indice indicato con shifter
-                for (int i = 0; i <= shifter; i++) {
+                int k = 0;
+                while (k < shifter) {
                     next_word = current->next_words->next_element;
+                    k++;
                 }
                 // se non ci sono stati errori si procede
                 if (next_word != NULL) {
