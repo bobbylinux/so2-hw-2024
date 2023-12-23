@@ -1,11 +1,10 @@
+
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include "common.h"
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "../single-process-version/common.h"
 
-int main(int argc, char *argv[]) {
+void interface_with_user(int argc, char* argv[]) {
     int opt;
     char *input_file = NULL;
     char *start_word = NULL;
@@ -59,41 +58,6 @@ int main(int argc, char *argv[]) {
                 struct word_element *list = NULL;
                 // viene letto il file di input e viene costruita la lista concatenata delle parole con i rispettivi successori
                 read_csv_and_build_list(input_file, &list);
-
-                // Aggiunta del codice per la gestione dei processi figli
-                pid_t pid1, pid2;
-
-                pid1 = fork();
-                if (pid1 < 0) {
-                    perror("Error in fork");
-                    exit(EXIT_FAILURE);
-                } else if (pid1 == 0) {
-                    // Codice del primo processo figlio (Compito 1)
-                    write_output(&list, "output_child1.csv");
-                    free(list);
-                    exit(EXIT_SUCCESS);
-                } else {
-                    // Codice del processo padre
-
-                    pid2 = fork();
-                    if (pid2 < 0) {
-                        perror("Error in fork");
-                        exit(EXIT_FAILURE);
-                    } else if (pid2 == 0) {
-                        // Codice del secondo processo figlio (Compito 2)
-                        write_text_file(list, number_of_words, start_word, "output_child2.txt");
-                        free(list);
-                        exit(EXIT_SUCCESS);
-                    } else {
-                        // Codice del processo padre
-
-                        // Attesa della terminazione dei processi figli
-                        waitpid(pid1, NULL, 0);
-                        waitpid(pid2, NULL, 0);
-
-                        // Altri compiti del processo padre, se necessario
-                    }
-                }
                 break;
 
             default:

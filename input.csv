@@ -1,0 +1,13 @@
+.,cosa,1
+cosa,dicono,1
+dicono,le,1
+le,previsioni,1
+previsioni,di,0.33,del,0.66
+del,tempo,1
+tempo,incerto,0.33,di,0.33,?,0.33
+?,previsioni,1
+di,domani,0.50,oggi,0.50
+oggi,tempo,1
+incerto,!,1
+!,previsioni,1
+domani,?,1

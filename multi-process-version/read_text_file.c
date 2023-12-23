@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "common.h"
+#include "../common/common.h"
+
 /**
  * Questa funzione legge il file in input e memorizza le parole in un array di caratteri
  * @param input_file_name
  * @return char**
  */
 char **read_text_file(char *input_file_name) {
+
     int chr, idx_letter = 0, idx_word = 0;
     char *word = (char *) malloc(sizeof(char) * MAX_WORD_SIZE); // array che si riferisce alla singola parola
     char **words = (char **) malloc(sizeof(char *) * MAX_WORDS); // array che si riferisce all'insieme di parole
