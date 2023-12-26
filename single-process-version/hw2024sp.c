@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "../common/common.h"
-#include "common.h"
 
 /**
  * Questa funzione è il punto di ingresso del programma
@@ -22,6 +21,11 @@ int main(int argc, char *argv[]) {
             case '1': // caso 1 si legge il file indicato come argomento e genera il csv come output output.csv
                 // legge il file di input e sposta le parole nell'array di char words ripulendo il testo
                 words = read_text_file(optarg);
+                // testo vuoto
+                if (words[0] == NULL) {
+                    perror("The input file is empty");
+                    exit(EXIT_FAILURE);
+                }
                 // Testa della lista concatenata
                 struct word_element *head = NULL;
                 // valorizzo il punto con successore la prima parola della frase

@@ -1,8 +1,7 @@
-
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../single-process-version/common.h"
+#include "../common/common.h"
 
 void interface_with_user(int argc, char* argv[]) {
     int opt;
