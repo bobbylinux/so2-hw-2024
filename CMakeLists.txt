@@ -13,6 +13,10 @@ add_executable(so2_hw_2024
         common/read_text_file.c
         common/round_down_to_decimal.c
         multi-process-version/hw2024mp.c
+        multi-process-version/serialize_list.c
+        multi-process-version/deserialize_list.c
+        multi-process-version/free_list.c
+        multi-process-version/reverse_list.c
         #        single-process-version/hw2024sp.c
 )
 find_package(GSL REQUIRED)

@@ -61,7 +61,6 @@ void write_text_file(const struct word_element *head, int number_of_words, char 
             // se il count (che indica il numero di successori nel file csv fornito in input) è 1 non serve usare la randomizzazione della parola successiva da usare nel testo
             if (current->count == 1) {
                 fprintf(fp, "%s", current->next_words->word);
-                printf("%s ", current->next_words->word);
                 strcpy(start_word, current->next_words->word);
             } else {
                 next_word = current->next_words;
@@ -75,7 +74,6 @@ void write_text_file(const struct word_element *head, int number_of_words, char 
                 // se non ci sono stati errori si procede
                 if (next_word != NULL) {
                     fprintf(fp, "%s", next_word->word);
-                    printf("%s ", next_word->word);
                     strcpy(start_word, next_word->word);
                 }
             }

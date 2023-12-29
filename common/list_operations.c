@@ -51,7 +51,6 @@ struct word_element *create_word_element(const char *word) {
 void add_or_update_element(struct word_element **head, const char *word, const char *next_word) {
     struct word_element *current = *head;
     struct word_element *previous = NULL;
-
     // Cerca se la parola è già presente nella lista
     while (current != NULL && strcmp(current->word, word) != 0) {
         previous = current;
@@ -59,7 +58,6 @@ void add_or_update_element(struct word_element **head, const char *word, const c
     }
     // Se la parola non è presente, aggiunge un nuovo elemento alla lista
     if (current == NULL) {
-
         struct word_element *new_element = create_word_element(word);
 
         // Aggiunge la parola successiva alla nuova struttura next_word_element

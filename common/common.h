@@ -3,6 +3,7 @@
 
 #define MAX_WORDS 10000
 #define MAX_WORD_SIZE 30
+#define MAX_SERIALIZED_SIZE MAX_WORD_SIZE * MAX_WORDS
 #define EXCLAMATION_MARK '!'
 #define QUESTION_MARK '?'
 #define DOT '.'
@@ -14,6 +15,8 @@
 #define COMMA ','
 #define SEMICOLON ';'
 #define APOSTROPHE '\''
+#define DELIMITER ";"
+
 
 // Dichiarazioni di strutture
 // Struttura elemento lista concatenata per le parole
@@ -40,5 +43,9 @@ void write_output(struct word_element **head, char *output_file_name);
 double round_down_to_decimal(double number, int decimalPlaces);
 void read_csv_and_build_list(const char *filename, struct word_element **head);
 void write_text_file(const struct word_element *head, int number_of_words, char *start_word, char *output_file_name);
+char *serialize_list(struct word_element *head);
+struct word_element *deserialize_list(const char *serialized_list);
+void free_list(struct word_element *head);
+struct word_element *reverse_list(struct word_element *head);
 
 #endif //SO2_HW_2024_COMMON_H

@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include "../common/common.h"
 #include <sys/wait.h>
+#include <string.h>
+
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -24,13 +26,89 @@ int main(int argc, char *argv[]) {
                 // creazione del primo processo di lettura del file
                 pid_t pid_1 = fork();
                 if (pid_1 == -1) {
-
+                    perror("Error trying to fork the first process");
+                    exit(EXIT_FAILURE);
                 } else if (pid_1 == 0) {
-                    printf("Processo figlio\n");
+                    // processo figlio 1
+                    close(pipe1[1]); // Chiude la parte di scrittura della pipe nel figlio
+                    char received_word[MAX_WORD_SIZE];
+                    char **received_words = NULL;
+                    int num_words = 0;
+                    while (read(pipe1[0], received_word, MAX_WORD_SIZE) > 0) {
+                        if (strlen(received_word) > 0) {
+                            num_words++;
+                            received_words = (char **)realloc(received_words, num_words * sizeof(char *));
+                            if (received_words == NULL) {
+                                perror("Memory allocation error");
+                                exit(EXIT_FAILURE);
+                            }
+                            received_words[num_words - 1] = strdup(received_word);
+                        }
+                    }
+                    close(pipe1[0]); // Chiude la parte di lettura della pipe nel figlio
+                    // Testa della lista concatenata
+                    struct word_element *head = NULL;
+                    // valorizzo il punto con successore la prima parola della frase
+                    add_or_update_element(&head, ".", received_words[0]);
+                    int j = 1;
+                    // valorizza la lista concatenata con le parole dell'array
+                    for (int i = 0; j < num_words; i++) {
+                        add_or_update_element(&head, received_words[i], received_words[j]);
+                        j++;
+                    }
+                    // creazione della seconda pipe
+                    if (pipe(pipe2) == -1) {
+                        perror("Error trying to create second pipe");
+                        exit(EXIT_FAILURE);
+                    }
+                    pid_t pid_2 = fork();  // Processo figlio 2
+                    if (pid_2 == -1) {
+                        perror("Error trying to fork the first process");
+                        exit(EXIT_FAILURE);
+                    } else if (pid_2 == 0) {
+                        //processo figlio 2
+                        char serialized_list[MAX_SERIALIZED_SIZE];
+                        close(pipe2[1]); // chiudere la pipe in scrittura nel processo figlio 2
+                        ssize_t bytes_read = read(pipe2[0], serialized_list, MAX_SERIALIZED_SIZE);
+                        if (bytes_read <= 0) {
+                            // Gestire l'errore o l'assenza di dati
+                            perror("Error reading from pipe2 or empty serialized list\n");
+                            exit(EXIT_FAILURE);
+                        }
+                        serialized_list[bytes_read] = '\0';  // Assicurati di terminare la stringa con null character
+                        // Deserializza la lista concatenata
+                        struct word_element *received_list = deserialize_list(serialized_list);
+                        // Ora puoi utilizzare received_list come desideri
+                        // Ora puoi scrivere il file output.csv utilizzando la lista concatenata
+                        write_output(&received_list, "../output.csv" );
+                        // Libera la memoria utilizzata per la deserializzazione
+                        exit(EXIT_SUCCESS);
+                    } else {
+                        // processo figlio 1
+                        // Serializza la lista concatenata prima di inviarla attraverso la pipe
+                        char *serialized_list = serialize_list(head);
+                        close(pipe2[0]); // Chiudo la pipe in lettura
+                        // Invia la lista serializzata attraverso la pipe2
+                        write(pipe2[1], serialized_list, strlen(serialized_list) + 1);
+                        waitpid(pid_2, NULL, 0);
+                        exit(EXIT_SUCCESS);
+                    }
                 } else {
-                    printf("Processo padre\n");
+                    //processo padre deve leggere le parole dal file
+                    close(pipe1[0]); // Chiude la parte di lettura della pipe
+                    // legge il file di input e sposta le parole nell'array di char words ripulendo il testo
+                    words = read_text_file(optarg);
+                    int j = 1;
+                    for (int i = 0; words[i] != NULL; i++) {
+                        write(pipe1[1], words[i], strlen(words[i]) + 1); // Invia ogni parola separatamente
+                        usleep(10000);
+                    }
+                    // Invia una stringa vuota come marca di fine
+                    write(pipe1[1], "", 1);
+                    close(pipe1[1]); // Chiude la parte di lettura della pipe
+                    waitpid(pid_1, NULL, 0);  // Attendi il figlio 1
+                    exit(EXIT_SUCCESS);
                 }
-                exit(EXIT_SUCCESS);
             case '2': // caso 2 viene letto il file in input e aggiunte le parole ad una lista concatenata
                 if (argv[optind] != NULL) {
                     input_file = argv[optind];
