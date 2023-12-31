@@ -47,10 +47,14 @@ GSL_LIBS = -L$(GSL_DIR)/.libs -lgsl -lgslcblas -lm
 GSL_INCLUDE = -I$(GSL_DIR)/include -I$(GSL_DIR)
 
 # target principale
-all: $(EXECUTABLE)
+all: $(SP_EXECUTABLE) $(MP_EXECUTABLE)
 
-# regola per l'eseguibile
-$(EXECUTABLE): $(COMMON_HEADERS) $(SP_SOURCES)
+# regola per l'eseguibile single process
+$(SP_EXECUTABLE): $(COMMON_HEADERS) $(SP_SOURCES)
+	$(CC) $(CFLAGS) -o $@ $^ $(GSL_INCLUDE) $(GSL_LIBS)
+
+# regola per l'eseguibile multi-process
+$(MP_EXECUTABLE): $(COMMON_HEADERS) $(MP_SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^ $(GSL_INCLUDE) $(GSL_LIBS)
 
 # pulizia dei file generati
