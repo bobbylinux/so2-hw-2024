@@ -22,8 +22,8 @@ char **read_text_file(char *input_file_name) {
 
     // ciclo sul file parola per parola fino a incontrare il carattere di fine file
     while ((chr = fgetc(fp)) != EOF) {
-        if (idx_letter < MAX_WORD_SIZE - 1 && chr == SPACE || chr == QUESTION_MARK || chr == EXCLAMATION_MARK ||
-            chr == DOT || chr == END_LINE || chr == TAB) {
+        if (idx_letter < MAX_WORD_SIZE - 1 && (chr == SPACE || chr == QUESTION_MARK || chr == EXCLAMATION_MARK ||
+            chr == DOT || chr == END_LINE || chr == TAB)) {
             // se l'indice della singola lettera è minore del numero massimo consentito (30) e se il carattere analizzato è un carattere "terminale" si stacca la parola
             word[idx_letter] = EMPTY_CHAR; // si stacca la parola
             idx_letter = 0; // si riazzera l'indice
@@ -38,7 +38,7 @@ char **read_text_file(char *input_file_name) {
                 word = (char *) malloc(sizeof(char) * MAX_WORD_SIZE);
             }
             // se il carattere che si sta analizzando è uno tra ? . e ! allora si deve inserire anche questo nella lista delle parole, viceversa si scarta
-            if (idx_word < MAX_WORDS && chr == QUESTION_MARK || chr == EXCLAMATION_MARK || chr == DOT) {
+            if (idx_word < MAX_WORDS && (chr == QUESTION_MARK || chr == EXCLAMATION_MARK || chr == DOT)) {
                 word[0] = (char) chr;
                 word[1] = EMPTY_CHAR;
                 words[idx_word] = strdup(word);

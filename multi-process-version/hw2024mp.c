@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
                     while (read(pipe1[0], received_word, MAX_WORD_SIZE) > 0) {
                         if (strlen(received_word) > 0) {
                             num_words++;
-                            received_words = (char **)realloc(received_words, num_words * sizeof(char *));
+                            received_words = (char **) realloc(received_words, num_words * sizeof(char *));
                             if (received_words == NULL) {
                                 perror("Memory allocation error");
                                 exit(EXIT_FAILURE);
@@ -57,12 +57,14 @@ int main(int argc, char *argv[]) {
                     // Testa della lista concatenata
                     struct word_element *list = NULL;
                     // valorizzo il punto con successore la prima parola della frase
-                    add_or_update_element(&list, ".", received_words[0]);
-                    int j = 1;
-                    // valorizza la lista concatenata con le parole dell'array
-                    for (int i = 0; j < num_words; i++) {
-                        add_or_update_element(&list, received_words[i], received_words[j]);
-                        j++;
+                    if (received_words != NULL) {
+                        add_or_update_element(&list, ".", received_words[0]);
+                        int j = 1;
+                        // valorizza la lista concatenata con le parole dell'array
+                        for (int i = 0; j < num_words; i++) {
+                            add_or_update_element(&list, received_words[i], received_words[j]);
+                            j++;
+                        }
                     }
                     // creazione della seconda pipe
                     if (pipe(pipe2) == -1) {
@@ -87,7 +89,7 @@ int main(int argc, char *argv[]) {
                         // Deserializza la lista concatenata
                         struct word_element *received_list = deserialize_list(serialized_list);
                         // Ora è possibile scrivere il file output.csv utilizzando la lista concatenata
-                        write_output(&received_list, "../output.csv" );
+                        write_output(&received_list, "output.csv");
                         // Liberare la memoria utilizzata per la deserializzazione
                         free(received_list);
                         exit(EXIT_SUCCESS);
@@ -99,6 +101,7 @@ int main(int argc, char *argv[]) {
                         // Invia la lista serializzata attraverso la pipe2
                         write(pipe2[1], serialized_list, strlen(serialized_list) + 1);
                         waitpid(pid_2, NULL, 0);
+                        free(serialized_list);
                         exit(EXIT_SUCCESS);
                     }
                 } else {
@@ -113,24 +116,30 @@ int main(int argc, char *argv[]) {
                     // Invia una stringa vuota come marca di fine
                     write(pipe1[1], "", 1);
                     close(pipe1[1]); // Chiude la parte di lettura della pipe
+                    // libera la memoria
                     waitpid(pid_1, NULL, 0);  // Attendi il figlio 1
                     exit(EXIT_SUCCESS);
                 }
             case '2': // caso 2 viene letto il file in input e aggiunte le parole ad una lista concatenata
-                if (argv[optind] != NULL) {
+                if (optind < argc && argv[optind] != NULL) {
                     input_file = argv[optind];
                     optind++;
-                    // viene convertito la stringa che indica il numero di parole in un intero
-                    char *end_pointer;
-                    number_of_words = (int) strtol(argv[optind], &end_pointer, 10);
-                    if (argv[optind] == NULL || *end_pointer != '\0') {
-                        // gestisce il caso in cui ci sono caratteri non validi nella stringa
-                        perror("Error trying to read number of words, characters not valid");
+                    if (optind < argc) {
+                        // viene convertito la stringa che indica il numero di parole in un intero
+                        char *end_pointer;
+                        number_of_words = (int) strtol(argv[optind], &end_pointer, 10);
+                        if (argv[optind] == NULL || *end_pointer != '\0') {
+                            // gestisce il caso in cui ci sono caratteri non validi nella stringa
+                            perror("Error trying to read number of words, characters not valid");
+                            exit(EXIT_FAILURE);
+                        }
+                        optind++;
+                        // nel caso in cui è presente prende anche la parola dalla quale iniziale le frasi random
+                        start_word = argv[optind];
+                    } else {
+                        perror("Option -2 requires at least two argument\n");
                         exit(EXIT_FAILURE);
                     }
-                    optind++;
-                    // nel caso in cui è presente prende anche la parola dalla quale iniziale le frasi random
-                    start_word = argv[optind];
                 } else { //se gli argomenti non sono presenti va in errore.
                     perror("Option -2 requires at least two argument\n");
                     exit(EXIT_FAILURE);
@@ -159,7 +168,7 @@ int main(int argc, char *argv[]) {
                     // Deserializza la lista concatenata
                     struct word_element *received_list = deserialize_list(serialized_list);
                     // Ora è possibile scrivere il file output.csv utilizzando la lista concatenata
-                    write_text_file(received_list, number_of_words, start_word, "../output.txt");
+                    write_text_file(received_list, number_of_words, start_word, "output.txt");
                     // Liberare la memoria utilizzata per la deserializzazione
                     free(received_list);
                     exit(EXIT_SUCCESS);
@@ -178,7 +187,6 @@ int main(int argc, char *argv[]) {
                 }
             default:
                 //nel caso in cui nessun argomento venga specificato in esecuzione del file viene restituito un errore
-                perror("Unknown option, please select a valid option -1 or -2\n");
                 exit(EXIT_FAILURE);
         }
     }

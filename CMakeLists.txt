@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(so2_hw_2024 C)
+project(so2_hw_2024_mp C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -19,6 +19,5 @@ add_executable(so2_hw_2024
         multi-process-version/reverse_list.c
         #        single-process-version/hw2024sp.c
 )
-find_package(GSL REQUIRED)
-target_include_directories(so2_hw_2024 PRIVATE ${GSL_INCLUDE_DIRS})
-target_link_libraries(so2_hw_2024 PRIVATE ${GSL_LIBRARIES})
+target_include_directories(so2_hw_2024_mp PRIVATE ${GSL_INCLUDE_DIRS})
+target_link_libraries(so2_hw_2024_mp PRIVATE ${GSL_LIBRARIES})

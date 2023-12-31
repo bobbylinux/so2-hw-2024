@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt(argc, argv, "1:2:::")) != -1) {
         switch (opt) {
             case '1': // caso 1 si legge il file indicato come argomento e genera il csv come output output.csv
+
                 // legge il file di input e sposta le parole nell'array di char words ripulendo il testo
                 words = read_text_file(optarg);
                 // testo vuoto
@@ -41,23 +42,27 @@ int main(int argc, char *argv[]) {
                 // libera la memoria
                 free(words);
                 free(head);
-                break;
+                exit(EXIT_SUCCESS);
             case '2': // caso 2 viene letto il file in input e aggiunte le parole ad una lista concatenata
-                if (argv[optind] != NULL) {
+                if (optind < argc && argv[optind] != NULL) {
                     input_file = argv[optind];
                     optind++;
-                    // viene convertito la stringa che indica il numero di parole in un intero
-                    char *end_pointer;
-                    number_of_words = strtol(argv[optind], &end_pointer, 10);
-                    if (argv[optind] == NULL || *end_pointer != '\0') {
-                        // gestisce il caso in cui ci sono caratteri non validi nella stringa
-                        perror("Error trying to read number of words, characters not valid");
+                    if (optind < argc) {
+                        // viene convertito la stringa che indica il numero di parole in un intero
+                        char *end_pointer;
+                        number_of_words = strtol(argv[optind], &end_pointer, 10);
+                        if (argv[optind] == NULL || *end_pointer != '\0') {
+                            // gestisce il caso in cui ci sono caratteri non validi nella stringa
+                            perror("Error trying to read number of words, characters not valid");
+                            exit(EXIT_FAILURE);
+                        }
+                        optind++;
+                        // nel caso in cui è presente prende anche la parola dalla quale iniziale le frasi random
+                        start_word = argv[optind];
+                    } else {
+                        perror("Option -2 requires at least two argument\n");
                         exit(EXIT_FAILURE);
                     }
-
-                    optind++;
-                    // nel caso in cui è presente prende anche la parola dalla quale iniziale le frasi random
-                    start_word = argv[optind];
                 } else { //se gli argomenti non sono presenti va in errore.
                     perror("Option -2 requires at least two argument\n");
                     exit(EXIT_FAILURE);
@@ -72,14 +77,11 @@ int main(int argc, char *argv[]) {
                 free(list);
                 break;
             default:
-                //nel caso in cui nessun argomento venga specificato in esecuzione del file viene restituito un errore
-                perror("Unknown option, please select a valid option -1 or -2\n");
                 exit(EXIT_FAILURE);
         }
         exit(EXIT_SUCCESS);
     }
     // se qualcosa è andato storto si esce comunque con errore.
-    printf("Unknown option, please select a valid option -1 or -2\n");
     exit(EXIT_FAILURE);
 }
 
