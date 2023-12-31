@@ -9,17 +9,33 @@ CFLAGS = -Wall -Wextra -g
 # dipendenze comuni
 COMMON_HEADERS = common/common.h
 
+
 # sorgenti specifici per la versione single process
 SP_SOURCES = single-process-version/hw2024sp.c \
-             single-process-version/list_operations.c \
-             single-process-version/read_csv_and_build_list.c \
+             common/list_operations.c \
+             common/read_csv_and_build_list.c \
              common/round_down_to_decimal.c \
              common/to_lower.c \
-             single-process-version/write_output.c \
-             single-process-version/write_text_file.c
+             common/write_output.c \
+             common/write_text_file.c
 
-# nome dell'eseguibile
-EXECUTABLE = so2_hw_2024_sp
+# nome dell'eseguibile single process
+SP_EXECUTABLE = so2_hw_2024_sp
+
+# sorgenti specifici per la versione multi-process
+MP_SOURCES = multi-process-version/hw2024mp.c \
+             multi-process-version/deserialize_list.c \
+             multi-process-version/serialize_list.c \
+             common/list_operations.c \
+             common/read_csv_and_build_list.c \
+             common/read_text_file.c \
+             common/round_down_to_decimal.c \
+             common/to_lower.c \
+             common/write_output.c \
+             common/write_text_file.c
+
+# nome dell'eseguibile multi-process
+MP_EXECUTABLE = so2_hw_2024_mp
 
 # directory della GSL
 GSL_DIR = gsl

@@ -4,7 +4,11 @@
 #include "../common/common.h"
 #define MAX_TOKENS 10000
 
-// Funzione di deserializzazione
+/**
+ * Questa funzione deserializza una stringa in una lista concatenata
+ * @param serialized_list
+ * @return *word_element
+ */
 struct word_element *deserialize_list(const char *serialized_list) {
     if (serialized_list == NULL || strlen(serialized_list) == 0) {
         return NULL;

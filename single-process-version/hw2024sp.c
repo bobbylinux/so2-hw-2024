@@ -4,10 +4,10 @@
 #include "../common/common.h"
 
 /**
- * Questa funzione è il punto di ingresso del programma
+ * Questa funzione è il punto di ingresso del programma single process
  * @param argc
  * @param argv
- * @return
+ * @return int
  */
 int main(int argc, char *argv[]) {
     int opt;

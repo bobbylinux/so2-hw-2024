@@ -5,7 +5,15 @@
 #include <sys/wait.h>
 #include <string.h>
 
-
+/**
+ * Questa funzione è il punto di ingresso del programma multi process.
+ * Utilizza pipe per passare dati tra processi.
+ * L'opzione -1 utilizza tre processi a cascata.
+ * L'opzione -2 utilizza due processi a cascata.
+ * @param argc
+ * @param argv
+ * @return int
+ */
 int main(int argc, char *argv[]) {
     int opt;
     char *input_file = NULL;
@@ -168,8 +176,6 @@ int main(int argc, char *argv[]) {
                     waitpid(pid_3, NULL, 0); // Attendi il figlio
                     exit(EXIT_SUCCESS);
                 }
-
-
             default:
                 //nel caso in cui nessun argomento venga specificato in esecuzione del file viene restituito un errore
                 perror("Unknown option, please select a valid option -1 or -2\n");

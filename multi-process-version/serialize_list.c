@@ -3,7 +3,11 @@
 #include <string.h>
 #include "../common/common.h"
 
-// Funzione di serializzazione
+/**
+ * Questa funzione serializza la lista concatenata in una stringa
+ * @param head
+ * @return *char
+ */
 char *serialize_list(struct word_element *head) {
     if (head == NULL) {
         return NULL;
